@@ -1,4 +1,9 @@
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=250&section=header&text=House%20Price%20Prediction&fontSize=60&animation=fadeIn&fontAlignY=38&desc=Kaggle%20Advanced%20Regression%20Techniques&descAlignY=51&descAlign=62" width="100%" />
+</div>
+
 # 🏠 House Price Prediction Project
+
       
 Predicting house prices using advanced regression techniques. We explore, clean, engineer, and model data from the famous Kaggle House Prices dataset.
 
