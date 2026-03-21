@@ -103,10 +103,6 @@ elif step == "1. Loading & Initial Inspection":
         if st.button("➡️ Next Part", key="next_1"):
             next_step(); st.rerun()
 
-    if st.session_state.df_train is not None:
-        if st.button("➡️ Next Part", key="next_1"):
-            next_step(); st.rerun()
-
 elif step == "2. Exploratory Data Analysis (EDA)":
     st.header("📊 Step 2: Exploratory Data Analysis (EDA)")
     if st.session_state.df_train is None:
