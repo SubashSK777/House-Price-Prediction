@@ -39,7 +39,9 @@ st.markdown("""
 st.markdown("<h1 style='text-align: center; color: #FF5722;'>🏠 House Price Prediction Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>Explore data, clean features, and build advanced regressions.</p>", unsafe_allow_html=True)
 
-# Navigation setup
+# Navigation setup (Spacious Sidebar)
+st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+st.sidebar.title("🛠️ Project Steps")
 steps = [
     "0. Environment Setup",
     "1. Loading & Initial Inspection",
@@ -56,9 +58,9 @@ if 'step_index' not in st.session_state:
 def next_step():
     st.session_state.step_index = min(st.session_state.step_index + 1, len(steps) - 1)
 
-# Sidebar with manual select or auto-updated radio
-step = st.sidebar.radio("Go to Step:", steps, index=st.session_state.step_index)
+step = st.sidebar.radio("Navigate Workflow:", steps, index=st.session_state.step_index)
 st.session_state.step_index = steps.index(step)
+st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 
 # Initialize Session State
 if 'df_train' not in st.session_state:
@@ -74,43 +76,33 @@ if step == "0. Environment Setup":
     if st.button("✅ Run Setup"):
         warnings.filterwarnings('ignore')
         sns.set_theme(style="whitegrid")
-        with st.expander("🔍 Setup Details", expanded=False):
+        with st.expander("🔍 Setup Details", expanded=True):
             st.success("Libraries loaded successfully!")
             st.code("import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns")
     
     if st.button("➡️ Next Part", key="next_0"):
-        next_step()
-        st.rerun()
+        next_step(); st.rerun()
 
 elif step == "1. Loading & Initial Inspection":
     st.header("📂 Step 1: Loading & Initial Inspection")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("Upload Data Files (Optional)")
-        train_file = st.file_uploader("Upload train.csv", type="csv")
-        test_file = st.file_uploader("Upload test.csv", type="csv")
-
+    st.write("Using pre-loaded project datasets (`train.csv`, `test.csv`) for analysis.")
+    
     if st.button("🚀 Load Dataset"):
         try:
-            if train_file and test_file:
-                df_train = pd.read_csv(train_file)
-                df_test = pd.read_csv(test_file)
-            else:
-                df_train = pd.read_csv("train.csv")
-                df_test = pd.read_csv("test.csv")
+            df_train = pd.read_csv("train.csv")
+            df_test = pd.read_csv("test.csv")
             
             st.session_state.df_train = df_train
             st.session_state.df_test = df_test
-            with st.expander("📊 Inspection Result", expanded=False):
-                st.write(f"**Train:** {df_train.shape} | **Test:** {df_test.shape}")
+            with st.expander("📊 Inspection Result", expanded=True):
+                st.write(f"🚀 **Train:** {df_train.shape} samples | **Test:** {df_test.shape} samples")
                 st.dataframe(df_train.head())
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"Error: {e}. Ensure train.csv and test.csv are in the project folder.")
 
     if st.session_state.df_train is not None:
         if st.button("➡️ Next Part", key="next_1"):
-            next_step()
-            st.rerun()
+            next_step(); st.rerun()
 
 elif step == "2. Exploratory Data Analysis (EDA)":
     st.header("📊 Step 2: Exploratory Data Analysis (EDA)")
@@ -118,7 +110,7 @@ elif step == "2. Exploratory Data Analysis (EDA)":
         st.warning("Please load data in Step 1 first.")
     else:
         if st.button("📈 Analyze Distribution"):
-            with st.expander("🎨 Distribution Plots", expanded=False):
+            with st.expander("🎨 Distribution Plots", expanded=True):
                 fig, ax = plt.subplots(1, 2, figsize=(14, 5))
                 sns.histplot(st.session_state.df_train['SalePrice'], kde=True, color='teal', ax=ax[0])
                 ax[0].set_title("Original")
@@ -127,7 +119,7 @@ elif step == "2. Exploratory Data Analysis (EDA)":
                 st.pyplot(fig)
 
         if st.button("🔥 Correlations"):
-            with st.expander("🌡️ Correlation Heatmap", expanded=False):
+            with st.expander("🌡️ Correlation Heatmap", expanded=True):
                 num_train = st.session_state.df_train.select_dtypes(include=[np.number])
                 corr = num_train.corr()['SalePrice'].sort_values(ascending=False)
                 fig, ax = plt.subplots(figsize=(8, 10))
@@ -135,8 +127,7 @@ elif step == "2. Exploratory Data Analysis (EDA)":
                 st.pyplot(fig)
         
         if st.button("➡️ Next Part", key="next_2"):
-            next_step()
-            st.rerun()
+            next_step(); st.rerun()
 
 elif step == "3. Data Cleaning & Imputation":
     st.header("🧼 Step 3: Data Cleaning & Imputation")
@@ -156,14 +147,13 @@ elif step == "3. Data Cleaning & Imputation":
             for col in ['MSZoning', 'Electrical', 'KitchenQual', 'Exterior1st', 'Exterior2nd', 'SaleType']:
                 all_data[col] = all_data[col].fillna(all_data[col].mode()[0])
             st.session_state.all_data = all_data
-            with st.expander("✨ Cleaning Details", expanded=False):
+            with st.expander("✨ Cleaning Details", expanded=True):
                 st.success("Missing values handled!")
                 st.write(all_data.isnull().sum().sort_values(ascending=False).head(5))
 
         if 'all_data' in st.session_state:
             if st.button("➡️ Next Part", key="next_3"):
-                next_step()
-                st.rerun()
+                next_step(); st.rerun()
 
 elif step == "4. Feature Engineering":
     st.header("🏗️ Step 4: Feature Engineering")
