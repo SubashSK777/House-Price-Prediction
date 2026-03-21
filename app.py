@@ -7,6 +7,7 @@ import warnings
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge, Lasso, LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+import os
 
 # Page Config
 st.set_page_config(page_title="House Price Prediction App", layout="wide")
@@ -85,12 +86,23 @@ if step == "0. Environment Setup":
 
 elif step == "1. Loading & Initial Inspection":
     st.header("📂 Step 1: Loading & Initial Inspection")
-    st.write("Using pre-loaded project datasets (`train.csv`, `test.csv`) for analysis.")
+    st.write("The app will automatically use `train.csv` and `test.csv` if they are in the project folder. Otherwise, please upload them below.")
     
+    with st.expander("⬆️ Upload Fallback (Optional)", expanded=not os.path.exists("train.csv")):
+        u_train = st.file_uploader("Upload train.csv", type="csv")
+        u_test = st.file_uploader("Upload test.csv", type="csv")
+
     if st.button("🚀 Load Dataset"):
         try:
-            df_train = pd.read_csv("train.csv")
-            df_test = pd.read_csv("test.csv")
+            if u_train and u_test:
+                df_train = pd.read_csv(u_train)
+                df_test = pd.read_csv(u_test)
+            elif os.path.exists("train.csv") and os.path.exists("test.csv"):
+                df_train = pd.read_csv("train.csv")
+                df_test = pd.read_csv("test.csv")
+            else:
+                st.error("⚠️ Data files not found locally. Please upload `train.csv` and `test.csv` above.")
+                st.stop()
             
             st.session_state.df_train = df_train
             st.session_state.df_test = df_test
@@ -98,7 +110,7 @@ elif step == "1. Loading & Initial Inspection":
                 st.write(f"🚀 **Train:** {df_train.shape} samples | **Test:** {df_test.shape} samples")
                 st.dataframe(df_train.head())
         except Exception as e:
-            st.error(f"Error: {e}. Ensure train.csv and test.csv are in the project folder.")
+            st.error(f"Error: {e}")
 
     if st.session_state.df_train is not None:
         if st.button("➡️ Next Part", key="next_1"):
