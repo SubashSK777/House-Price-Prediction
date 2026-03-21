@@ -168,7 +168,7 @@ elif step == "4. Feature Engineering":
             all_data['HasPool'] = (all_data['PoolArea'] > 0).astype(int)
             all_data['HasGarage'] = (all_data['GarageArea'] > 0).astype(int)
             st.session_state.all_data = all_data
-            with st.expander("🏗️ Engineering Result", expanded=False):
+            with st.expander("🏗️ Engineering Result", expanded=True):
                 st.success("Sophisticated features engineered!")
                 st.dataframe(all_data[['TotalSF', 'HouseAge', 'TotalBaths']].head())
         
@@ -182,7 +182,7 @@ elif step == "5. Training & Model Selection":
         st.warning("Please engineer features in Step 4 first.")
     else:
         if st.button("🧠 Train Models"):
-            with st.expander("🤖 Training Result", expanded=False):
+            with st.expander("🤖 Training Result", expanded=True):
                 all_data = st.session_state.all_data
                 df_train = st.session_state.df_train
                 features = ['TotalSF', 'OverallQual', 'GrLivArea', 'GarageCars', 'TotalBaths', 'HouseAge', 'YearsRemod', 'TotalBsmtSF', 'HasPool', 'HasGarage']
@@ -215,7 +215,7 @@ elif step == "6. Visualizing Results":
         st.warning("Please train models in Step 5 first.")
     else:
         if st.button("🎯 Regression Performance"):
-            with st.expander("📈 Comparison Plot", expanded=False):
+            with st.expander("📈 Comparison Plot", expanded=True):
                 best_model = Ridge(alpha=10)
                 best_model.fit(st.session_state.X_train, st.session_state.y_train)
                 final_preds = best_model.predict(st.session_state.X_test)
@@ -224,7 +224,7 @@ elif step == "6. Visualizing Results":
                 st.pyplot(fig)
 
         if st.button("🏆 Feature Importance"):
-            with st.expander("🥇 Importance Chart", expanded=False):
+            with st.expander("🥇 Importance Chart", expanded=True):
                 best_model = Ridge(alpha=10)
                 best_model.fit(st.session_state.X_train, st.session_state.y_train)
                 coef_df = pd.DataFrame({'Feature': st.session_state.features, 'Importance': best_model.coef_}).sort_values('Importance', ascending=False)
