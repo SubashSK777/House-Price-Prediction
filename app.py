@@ -86,31 +86,22 @@ if step == "0. Environment Setup":
 
 elif step == "1. Loading & Initial Inspection":
     st.header("📂 Step 1: Loading & Initial Inspection")
-    st.write("The app will automatically use `train.csv` and `test.csv` if they are in the project folder. Otherwise, please upload them below.")
     
-    with st.expander("⬆️ Upload Fallback (Optional)", expanded=not os.path.exists("train.csv")):
-        u_train = st.file_uploader("Upload train.csv", type="csv")
-        u_test = st.file_uploader("Upload test.csv", type="csv")
-
     if st.button("🚀 Load Dataset"):
         try:
-            if u_train and u_test:
-                df_train = pd.read_csv(u_train)
-                df_test = pd.read_csv(u_test)
-            elif os.path.exists("train.csv") and os.path.exists("test.csv"):
-                df_train = pd.read_csv("train.csv")
-                df_test = pd.read_csv("test.csv")
-            else:
-                st.error("⚠️ Data files not found locally. Please upload `train.csv` and `test.csv` above.")
-                st.stop()
-            
+            df_train = pd.read_csv("train.csv")
+            df_test = pd.read_csv("test.csv")
             st.session_state.df_train = df_train
             st.session_state.df_test = df_test
             with st.expander("📊 Inspection Result", expanded=True):
-                st.write(f"🚀 **Train:** {df_train.shape} samples | **Test:** {df_test.shape} samples")
+                st.write(f"🚀 **Success!** Train: {df_train.shape} | Test: {df_test.shape}")
                 st.dataframe(df_train.head())
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"⚠️ Error: {e}. Please ensure 'train.csv' is present in the project folder.")
+
+    if st.session_state.df_train is not None:
+        if st.button("➡️ Next Part", key="next_1"):
+            next_step(); st.rerun()
 
     if st.session_state.df_train is not None:
         if st.button("➡️ Next Part", key="next_1"):
