@@ -74,22 +74,23 @@ if step == "0. Environment Setup":
     if st.button("✅ Run Setup"):
         warnings.filterwarnings('ignore')
         sns.set_theme(style="whitegrid")
-        st.success("Libraries loaded successfully!")
+        with st.expander("🔍 Setup Details", expanded=False):
+            st.success("Libraries loaded successfully!")
+            st.code("import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns")
     
-    if st.button("➡️ Move to Step 1", key="next_0"):
+    if st.button("➡️ Next Part", key="next_0"):
         next_step()
         st.rerun()
 
 elif step == "1. Loading & Initial Inspection":
     st.header("📂 Step 1: Loading & Initial Inspection")
-    
     col1, col2 = st.columns(2)
     with col1:
-        st.write("Upload Data Files (Optional if they exist in repo)")
+        st.write("Upload Data Files (Optional)")
         train_file = st.file_uploader("Upload train.csv", type="csv")
         test_file = st.file_uploader("Upload test.csv", type="csv")
 
-    if st.button("🚀 Load & Inspect Dataset"):
+    if st.button("🚀 Load Dataset"):
         try:
             if train_file and test_file:
                 df_train = pd.read_csv(train_file)
@@ -100,14 +101,14 @@ elif step == "1. Loading & Initial Inspection":
             
             st.session_state.df_train = df_train
             st.session_state.df_test = df_test
-            st.write(f"**Train shape:** {df_train.shape}")
-            st.write(f"**Test shape:** {df_test.shape}")
-            st.dataframe(df_train.head())
+            with st.expander("📊 Inspection Result", expanded=False):
+                st.write(f"**Train:** {df_train.shape} | **Test:** {df_test.shape}")
+                st.dataframe(df_train.head())
         except Exception as e:
-            st.error(f"Error: {e}. Please ensure train.csv is in the folder or uploaded.")
+            st.error(f"Error: {e}")
 
     if st.session_state.df_train is not None:
-        if st.button("➡️ Move to Step 2", key="next_1"):
+        if st.button("➡️ Next Part", key="next_1"):
             next_step()
             st.rerun()
 
@@ -116,22 +117,24 @@ elif step == "2. Exploratory Data Analysis (EDA)":
     if st.session_state.df_train is None:
         st.warning("Please load data in Step 1 first.")
     else:
-        if st.button("📈 Analyze SalePrice Distribution"):
-            fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-            sns.histplot(st.session_state.df_train['SalePrice'], kde=True, color='teal', ax=ax[0])
-            ax[0].set_title("Original SalePrice Distribution")
-            sns.histplot(np.log1p(st.session_state.df_train['SalePrice']), kde=True, color='orange', ax=ax[1])
-            ax[1].set_title("Log-Transformed SalePrice Distribution")
-            st.pyplot(fig)
+        if st.button("📈 Analyze Distribution"):
+            with st.expander("🎨 Distribution Plots", expanded=False):
+                fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+                sns.histplot(st.session_state.df_train['SalePrice'], kde=True, color='teal', ax=ax[0])
+                ax[0].set_title("Original")
+                sns.histplot(np.log1p(st.session_state.df_train['SalePrice']), kde=True, color='orange', ax=ax[1])
+                ax[1].set_title("Log-Transformed")
+                st.pyplot(fig)
 
-        if st.button("🔥 Show Feature Correlations"):
-            num_train = st.session_state.df_train.select_dtypes(include=[np.number])
-            corr = num_train.corr()['SalePrice'].sort_values(ascending=False)
-            fig, ax = plt.subplots(figsize=(8, 10))
-            sns.heatmap(corr.to_frame(), annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
-            st.pyplot(fig)
+        if st.button("🔥 Correlations"):
+            with st.expander("🌡️ Correlation Heatmap", expanded=False):
+                num_train = st.session_state.df_train.select_dtypes(include=[np.number])
+                corr = num_train.corr()['SalePrice'].sort_values(ascending=False)
+                fig, ax = plt.subplots(figsize=(8, 10))
+                sns.heatmap(corr.to_frame(), annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
+                st.pyplot(fig)
         
-        if st.button("➡️ Move to Step 3", key="next_2"):
+        if st.button("➡️ Next Part", key="next_2"):
             next_step()
             st.rerun()
 
@@ -144,7 +147,7 @@ elif step == "3. Data Cleaning & Imputation":
             df_train = st.session_state.df_train
             df_test = st.session_state.df_test
             all_data = pd.concat([df_train.drop('SalePrice', axis=1), df_test], axis=0).reset_index(drop=True)
-            # Cleaning logic...
+            # Cleaning Logic
             none_cols = ['PoolQC','MiscFeature','Alley','Fence','FireplaceQu','GarageType','GarageFinish','GarageQual','GarageCond','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2','MasVnrType']
             for col in none_cols: all_data[col] = all_data[col].fillna("None")
             zero_cols = ['GarageYrBlt','GarageArea','GarageCars','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF','BsmtFullBath','BsmtHalfBath','MasVnrArea']
@@ -153,11 +156,12 @@ elif step == "3. Data Cleaning & Imputation":
             for col in ['MSZoning', 'Electrical', 'KitchenQual', 'Exterior1st', 'Exterior2nd', 'SaleType']:
                 all_data[col] = all_data[col].fillna(all_data[col].mode()[0])
             st.session_state.all_data = all_data
-            st.success("Missing values handled!")
-            st.write(all_data.isnull().sum().sort_values(ascending=False).head(5))
+            with st.expander("✨ Cleaning Details", expanded=False):
+                st.success("Missing values handled!")
+                st.write(all_data.isnull().sum().sort_values(ascending=False).head(5))
 
         if 'all_data' in st.session_state:
-            if st.button("➡️ Move to Step 4", key="next_3"):
+            if st.button("➡️ Next Part", key="next_3"):
                 next_step()
                 st.rerun()
 
@@ -175,10 +179,11 @@ elif step == "4. Feature Engineering":
             all_data['HasPool'] = (all_data['PoolArea'] > 0).astype(int)
             all_data['HasGarage'] = (all_data['GarageArea'] > 0).astype(int)
             st.session_state.all_data = all_data
-            st.success("Sophisticated features engineered!")
-            st.dataframe(all_data[['TotalSF', 'HouseAge', 'TotalBaths']].head())
+            with st.expander("🏗️ Engineering Result", expanded=False):
+                st.success("Sophisticated features engineered!")
+                st.dataframe(all_data[['TotalSF', 'HouseAge', 'TotalBaths']].head())
         
-        if st.button("➡️ Move to Step 5", key="next_4"):
+        if st.button("➡️ Next Part", key="next_4"):
             next_step()
             st.rerun()
 
@@ -188,36 +193,30 @@ elif step == "5. Training & Model Selection":
         st.warning("Please engineer features in Step 4 first.")
     else:
         if st.button("🧠 Train Models"):
-            # Training logic...
-            all_data = st.session_state.all_data
-            df_train = st.session_state.df_train
-            features = ['TotalSF', 'OverallQual', 'GrLivArea', 'GarageCars', 'TotalBaths', 'HouseAge', 'YearsRemod', 'TotalBsmtSF', 'HasPool', 'HasGarage']
-            X = all_data[:len(df_train)][features]
-            y = np.log1p(df_train['SalePrice'])
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-            
-            models = {
-                "Linear Regression": LinearRegression(),
-                "Ridge Regression": Ridge(alpha=10),
-                "Lasso Regression": Lasso(alpha=0.001)
-            }
-            results = []
-            for name, model in models.items():
-                model.fit(X_train, y_train)
-                preds = model.predict(X_test)
-                rmse = np.sqrt(mean_squared_error(y_test, preds))
-                r2 = r2_score(y_test, preds)
-                results.append({"Model": name, "RMSE": round(rmse, 4), "R2": round(r2, 4)})
-            
-            st.session_state.X_train = X_train
-            st.session_state.X_test = X_test
-            st.session_state.y_train = y_train
-            st.session_state.y_test = y_test
-            st.session_state.features = features
-            st.table(pd.DataFrame(results))
+            with st.expander("🤖 Training Result", expanded=False):
+                all_data = st.session_state.all_data
+                df_train = st.session_state.df_train
+                features = ['TotalSF', 'OverallQual', 'GrLivArea', 'GarageCars', 'TotalBaths', 'HouseAge', 'YearsRemod', 'TotalBsmtSF', 'HasPool', 'HasGarage']
+                X = all_data[:len(df_train)][features]
+                y = np.log1p(df_train['SalePrice'])
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+                
+                models = {"Linear Regression": LinearRegression(), "Ridge Regression": Ridge(alpha=10), "Lasso Regression": Lasso(alpha=0.001)}
+                results = []
+                for name, model in models.items():
+                    model.fit(X_train, y_train)
+                    preds = model.predict(X_test)
+                    rmse = np.sqrt(mean_squared_error(y_test, preds))
+                    r2 = r2_score(y_test, preds)
+                    results.append({"Model": name, "RMSE": round(rmse, 4), "R2": round(r2, 4)})
+                
+                st.session_state.X_train, st.session_state.X_test = X_train, X_test
+                st.session_state.y_train, st.session_state.y_test = y_train, y_test
+                st.session_state.features = features
+                st.table(pd.DataFrame(results))
         
         if 'X_train' in st.session_state:
-            if st.button("➡️ Move to Step 6", key="next_5"):
+            if st.button("➡️ Next Part", key="next_5"):
                 next_step()
                 st.rerun()
 
@@ -226,24 +225,25 @@ elif step == "6. Visualizing Results":
     if 'X_train' not in st.session_state:
         st.warning("Please train models in Step 5 first.")
     else:
-        # Visualizing logic...
-        if st.button("🎯 Show Regression Performance"):
-            best_model = Ridge(alpha=10)
-            best_model.fit(st.session_state.X_train, st.session_state.y_train)
-            final_preds = best_model.predict(st.session_state.X_test)
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.regplot(x=st.session_state.y_test, y=final_preds, line_kws={"color": "red", "linestyle": "--"}, scatter_kws={"alpha": 0.5, "color": "teal"}, ax=ax)
-            st.pyplot(fig)
+        if st.button("🎯 Regression Performance"):
+            with st.expander("📈 Comparison Plot", expanded=False):
+                best_model = Ridge(alpha=10)
+                best_model.fit(st.session_state.X_train, st.session_state.y_train)
+                final_preds = best_model.predict(st.session_state.X_test)
+                fig, ax = plt.subplots(figsize=(10, 6))
+                sns.regplot(x=st.session_state.y_test, y=final_preds, line_kws={"color": "red", "linestyle": "--"}, scatter_kws={"alpha": 0.5, "color": "teal"}, ax=ax)
+                st.pyplot(fig)
 
-        if st.button("🏆 Show Feature Importance"):
-            best_model = Ridge(alpha=10)
-            best_model.fit(st.session_state.X_train, st.session_state.y_train)
-            coef_df = pd.DataFrame({'Feature': st.session_state.features, 'Importance': best_model.coef_}).sort_values('Importance', ascending=False)
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.barplot(data=coef_df, x='Importance', y='Feature', palette='magma', ax=ax)
-            st.pyplot(fig)
+        if st.button("🏆 Feature Importance"):
+            with st.expander("🥇 Importance Chart", expanded=False):
+                best_model = Ridge(alpha=10)
+                best_model.fit(st.session_state.X_train, st.session_state.y_train)
+                coef_df = pd.DataFrame({'Feature': st.session_state.features, 'Importance': best_model.coef_}).sort_values('Importance', ascending=False)
+                fig, ax = plt.subplots(figsize=(10, 6))
+                sns.barplot(data=coef_df, x='Importance', y='Feature', palette='magma', ax=ax)
+                st.pyplot(fig)
         
-        st.success("🎉 You've reached the end of the analysis!")
-        if st.button("🔄 Restart to Step 0"):
+        st.success("🎉 Final Step reached!")
+        if st.button("🚀 Restart Process"):
             st.session_state.step_index = 0
             st.rerun()
